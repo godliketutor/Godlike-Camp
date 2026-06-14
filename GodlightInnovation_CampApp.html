@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>บันทึกค่ายนวัตกรรม — Godlight Innovation</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',Tahoma,sans-serif;background:#f0f4f8;min-height:100vh;color:#1a1a2e}
+  .top-bar{background:#1A3A5C;color:#fff;padding:14px 24px;display:flex;align-items:center;gap:12px}
+  .top-bar h1{font-size:18px;font-weight:600}
+  .top-bar span{font-size:13px;opacity:.7}
+  .tab-bar{background:#fff;border-bottom:1px solid #dde3ea;display:flex;padding:0 24px}
+  .tab{padding:14px 20px;font-size:14px;cursor:pointer;border-bottom:3px solid transparent;color:#666;font-weight:500;transition:.15s}
+  .tab.active{color:#1A3A5C;border-bottom-color:#1A3A5C}
+  .tab:hover{color:#2E86AB}
+  .content{max-width:900px;margin:0 auto;padding:24px 16px}
+  .card{background:#fff;border-radius:12px;padding:20px 24px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+  .card-title{font-size:14px;font-weight:600;color:#1A3A5C;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  @media(max-width:600px){.form-row{grid-template-columns:1fr}}
+  .form-group{display:flex;flex-direction:column;gap:6px}
+  label{font-size:13px;color:#555;font-weight:500}
+  input[type=text],input[type=date]{width:100%;padding:9px 12px;border:1.5px solid #dde3ea;border-radius:8px;font-size:14px;font-family:inherit;transition:.15s}
+  input:focus{outline:none;border-color:#2E86AB;box-shadow:0 0 0 3px rgba(46,134,171,.12)}
+  .search-input{width:100%;padding:9px 12px;border:1.5px solid #dde3ea;border-radius:8px;font-size:14px;margin-bottom:10px;font-family:inherit}
+  .search-input:focus{outline:none;border-color:#2E86AB}
+  .sel-count{font-size:13px;color:#888;margin-bottom:10px}
+  .member-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:8px}
+  .member-item{border:1.5px solid #dde3ea;border-radius:10px;padding:10px 12px;cursor:default;background:#fff;transition:.15s}
+  .member-item.sel-staff{background:#EBF4FF;border-color:#378ADD}
+  .member-item.sel-lead{background:#EAF3DE;border-color:#639922}
+  .member-name{font-size:13px;font-weight:600;color:#1a1a2e;margin-bottom:6px}
+  .role-btns{display:flex;gap:4px}
+  .rbtn{font-size:11px;padding:3px 9px;border-radius:20px;border:1px solid #ccc;cursor:pointer;background:#f4f5f7;color:#555;font-family:inherit;transition:.15s}
+  .rbtn:hover{border-color:#888}
+  .rbtn.on-staff{background:#378ADD;color:#fff;border-color:#378ADD}
+  .rbtn.on-lead{background:#639922;color:#fff;border-color:#639922}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border-radius:8px;border:1.5px solid #dde3ea;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s}
+  .btn:hover{background:#f0f4f8}
+  .btn-primary{background:#1A3A5C;color:#fff;border-color:#1A3A5C}
+  .btn-primary:hover{background:#2E86AB;border-color:#2E86AB}
+  .btn-export{background:#27500A;color:#fff;border-color:#27500A}
+  .btn-export:hover{background:#639922;border-color:#639922}
+  .btn-danger{background:#fff5f5;color:#c0392b;border-color:#f5c6c6}
+  .btn-danger:hover{background:#ffe0e0}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#27500A;color:#fff;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:500;display:none;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+  .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+  .stat{background:#f0f4f8;border-radius:10px;padding:14px;text-align:center}
+  .stat-num{font-size:26px;font-weight:700;color:#1A3A5C}
+  .stat-lbl{font-size:12px;color:#888;margin-top:3px}
+  .camp-card{background:#fff;border:1.5px solid #dde3ea;border-radius:10px;padding:14px 16px;margin-bottom:10px}
+  .camp-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+  .camp-meta{font-size:12px;color:#888}
+  .camp-school{font-size:15px;font-weight:600;color:#1A3A5C;margin:2px 0 8px}
+  .tags{display:flex;flex-wrap:wrap;gap:5px}
+  .tag{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500}
+  .tag-staff{background:#EBF4FF;color:#0C447C}
+  .tag-lead{background:#EAF3DE;color:#27500A}
+  .sum-table{width:100%;border-collapse:collapse}
+  .sum-table th{font-size:12px;color:#888;font-weight:600;padding:8px 12px;text-align:center;border-bottom:2px solid #eee}
+  .sum-table th:first-child{text-align:left}
+  .sum-table td{font-size:13px;padding:9px 12px;text-align:center;border-bottom:1px solid #f0f0f0}
+  .sum-table td:first-child{text-align:left;font-weight:500}
+  .sum-table tr:last-child td{border-bottom:none}
+  .sum-table tr:hover td{background:#f7fafc}
+  .num-total{font-weight:700;color:#1A3A5C}
+  .num-lead{color:#27500A;font-weight:600}
+  .num-staff{color:#0C447C;font-weight:600}
+  .empty{text-align:center;padding:40px;color:#aaa;font-size:14px}
+  .page{display:none}
+  .page.active{display:block}
+  .logo-dot{width:10px;height:10px;border-radius:50%;background:#F0A500;display:inline-block;margin-right:4px}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div>
+    <h1>📋 บันทึกการออกค่ายนวัตกรรม</h1>
+    <span>Godlight Innovation</span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <div class="tab active" onclick="switchTab('add',this)">➕ บันทึกค่ายใหม่</div>
+  <div class="tab" onclick="switchTab('list',this)">📄 รายการค่าย</div>
+  <div class="tab" onclick="switchTab('summary',this)">📊 สรุปนวัตกร</div>
+</div>
+
+<div class="content">
+
+  <!-- TAB: ADD -->
+  <div id="tab-add" class="page active">
+    <div class="card">
+      <div class="card-title">📍 ข้อมูลค่าย</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>วันที่จัดค่าย</label>
+          <input type="date" id="inp-date">
+        </div>
+        <div class="form-group">
+          <label>โรงเรียน / สถานที่</label>
+          <input type="text" id="inp-school" placeholder="ชื่อโรงเรียน...">
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">👥 เลือกนวัตกรและตำแหน่ง</div>
+      <input class="search-input" type="text" id="search" placeholder="🔍 ค้นหาชื่อ..." oninput="filterMembers()">
+      <div class="sel-count" id="sel-count">เลือกแล้ว 0 คน</div>
+      <div class="member-grid" id="member-grid"></div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary" onclick="saveCamp()">💾 บันทึกค่ายนี้</button>
+      <button class="btn" onclick="resetForm()">🔄 ล้างข้อมูล</button>
+    </div>
+  </div>
+
+  <!-- TAB: LIST -->
+  <div id="tab-list" class="page">
+    <div class="stat-grid">
+      <div class="stat"><div class="stat-num" id="st-total">0</div><div class="stat-lbl">ค่ายทั้งหมด</div></div>
+      <div class="stat"><div class="stat-num" id="st-school">0</div><div class="stat-lbl">โรงเรียน</div></div>
+      <div class="stat"><div class="stat-num" id="st-trips">0</div><div class="stat-lbl">Trip รวม (นวัตกร×ค่าย)</div></div>
+    </div>
+    <div id="camp-list"></div>
+    <div class="actions" style="margin-top:8px">
+      <button class="btn btn-export" onclick="exportExcel()">📥 Export Excel</button>
+    </div>
+  </div>
+
+  <!-- TAB: SUMMARY -->
+  <div id="tab-summary" class="page">
+    <div class="card">
+      <div class="card-title">📊 สรุปรายบุคคล</div>
+      <table class="sum-table">
+        <thead>
+          <tr>
+            <th style="text-align:left">นวัตกร</th>
+            <th>ไปทั้งหมด</th>
+            <th style="color:#27500A">หัวหน้าฐาน</th>
+            <th style="color:#0C447C">สต๊าฟ</th>
+          </tr>
+        </thead>
+        <tbody id="summary-body"></tbody>
+      </table>
+    </div>
+    <div class="actions">
+      <button class="btn btn-export" onclick="exportExcel()">📥 Export Excel</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const MEMBERS=["โอ๊ต","ต้น","ไอซ์ อาโป","เบิร์ด","จอน","ปาล์ม","ชิน","เจมส์","ยีน","ป๊อบ","ไอซ์ พร","ธนา","ไวน์","โดม","ดราฟท์","วา","บอล","ภูมิ","กิต","เอิร์ธ","พงศ์","นีน่า","ว่าน","มายด์","ต้นไม้","ปังปอนด์","เกมส์","ไอซ์ วุฒิ","บอส","เอ็กซ์","ต้นตาล","กล้า","ชิโร่","สไปซ์","นนท์","ต้นกล้า"];
+let camps=JSON.parse(localStorage.getItem('gl_camps2')||'[]');
+let sel={};
+
+function switchTab(id,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+  if(id==='list') renderList();
+  if(id==='summary') renderSummary();
+}
+
+function buildGrid(){
+  const g=document.getElementById('member-grid');
+  g.innerHTML='';
+  MEMBERS.forEach(name=>{
+    const d=document.createElement('div');
+    d.className='member-item';
+    d.dataset.name=name;
+    d.innerHTML=`<div class="member-name">${name}</div>
+      <div class="role-btns">
+        <button class="rbtn" data-r="สต๊าฟ" onclick="setRole(this,'${name}','สต๊าฟ')">สต๊าฟ</button>
+        <button class="rbtn" data-r="หัวหน้าฐาน" onclick="setRole(this,'${name}','หัวหน้าฐาน')">หัวหน้าฐาน</button>
+      </div>`;
+    g.appendChild(d);
+  });
+}
+
+function setRole(btn,name,role){
+  event.stopPropagation();
+  const item=btn.closest('.member-item');
+  if(sel[name]===role){
+    delete sel[name];
+    item.className='member-item';
+    item.querySelectorAll('.rbtn').forEach(b=>b.className='rbtn');
+  } else {
+    sel[name]=role;
+    item.className='member-item '+(role==='สต๊าฟ'?'sel-staff':'sel-lead');
+    item.querySelectorAll('.rbtn').forEach(b=>{
+      b.className='rbtn';
+      if(b.dataset.r===role) b.className='rbtn '+(role==='สต๊าฟ'?'on-staff':'on-lead');
+    });
+  }
+  document.getElementById('sel-count').textContent=`เลือกแล้ว ${Object.keys(sel).length} คน`;
+}
+
+function filterMembers(){
+  const q=document.getElementById('search').value.toLowerCase();
+  document.querySelectorAll('.member-item').forEach(el=>{
+    el.style.display=el.dataset.name.includes(q)?'':'none';
+  });
+}
+
+function saveCamp(){
+  const date=document.getElementById('inp-date').value;
+  const school=document.getElementById('inp-school').value.trim();
+  if(!date||!school){showToast('⚠️ กรุณากรอกวันที่และชื่อโรงเรียน','#c0392b');return;}
+  if(!Object.keys(sel).length){showToast('⚠️ กรุณาเลือกนวัตกรอย่างน้อย 1 คน','#c0392b');return;}
+  camps.push({id:Date.now(),date,school,members:Object.entries(sel).map(([name,role])=>({name,role}))});
+  localStorage.setItem('gl_camps2',JSON.stringify(camps));
+  showToast('✅ บันทึกค่ายสำเร็จ!');
+  resetForm();
+}
+
+function resetForm(){
+  document.getElementById('inp-date').value='';
+  document.getElementById('inp-school').value='';
+  document.getElementById('search').value='';
+  sel={};
+  document.getElementById('sel-count').textContent='เลือกแล้ว 0 คน';
+  buildGrid();
+}
+
+function deleteCamp(id){
+  if(!confirm('ลบข้อมูลค่ายนี้?')) return;
+  camps=camps.filter(c=>c.id!==id);
+  localStorage.setItem('gl_camps2',JSON.stringify(camps));
+  renderList();
+}
+
+function fmtDate(d){if(!d)return'';const[y,m,day]=d.split('-');return`${parseInt(day)}/${parseInt(m)}/${y}`;}
+
+function renderList(){
+  const total=camps.reduce((a,c)=>a+c.members.length,0);
+  document.getElementById('st-total').textContent=camps.length;
+  document.getElementById('st-school').textContent=new Set(camps.map(c=>c.school)).size;
+  document.getElementById('st-trips').textContent=total;
+  const el=document.getElementById('camp-list');
+  if(!camps.length){el.innerHTML='<div class="empty">ยังไม่มีข้อมูลค่าย<br>ไปบันทึกค่ายแรกได้เลย!</div>';return;}
+  const sorted=[...camps].sort((a,b)=>b.date.localeCompare(a.date));
+  el.innerHTML=sorted.map(c=>`
+    <div class="camp-card">
+      <div class="camp-header">
+        <div>
+          <div class="camp-meta">${fmtDate(c.date)} &nbsp;·&nbsp; ${c.members.length} คน</div>
+          <div class="camp-school">${c.school}</div>
+          <div class="tags">${c.members.map(m=>`<span class="tag ${m.role==='สต๊าฟ'?'tag-staff':'tag-lead'}">${m.name} · ${m.role}</span>`).join('')}</div>
+        </div>
+        <button class="btn btn-danger" onclick="deleteCamp(${c.id})" style="padding:6px 12px;font-size:12px">🗑 ลบ</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderSummary(){
+  const counts={};
+  MEMBERS.forEach(n=>{counts[n]={t:0,l:0,s:0}});
+  camps.forEach(c=>c.members.forEach(m=>{
+    if(counts[m.name]){counts[m.name].t++;if(m.role==='หัวหน้าฐาน')counts[m.name].l++;else counts[m.name].s++;}
+  }));
+  const sorted=MEMBERS.slice().sort((a,b)=>counts[b].t-counts[a].t);
+  const tbody=document.getElementById('summary-body');
+  tbody.innerHTML=sorted.map(n=>`
+    <tr>
+      <td>${n}</td>
+      <td class="num-total">${counts[n].t||'-'}</td>
+      <td class="num-lead">${counts[n].l||'-'}</td>
+      <td class="num-staff">${counts[n].s||'-'}</td>
+    </tr>`).join('');
+}
+
+function exportExcel(){
+  if(!camps.length){showToast('⚠️ ยังไม่มีข้อมูล','#c0392b');return;}
+  const wb=XLSX.utils.book_new();
+  const rows=[['วันที่','โรงเรียน / สถานที่','ชื่อนวัตกร','ตำแหน่ง']];
+  [...camps].sort((a,b)=>a.date.localeCompare(b.date)).forEach(c=>
+    c.members.forEach(m=>rows.push([fmtDate(c.date),c.school,m.name,m.role])));
+  const ws1=XLSX.utils.aoa_to_sheet(rows);
+  ws1['!cols']=[{wch:14},{wch:35},{wch:16},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws1,'บันทึกค่าย');
+
+  const sum=[['ชื่อนวัตกร','ไปค่ายทั้งหมด','หัวหน้าฐาน','สต๊าฟ']];
+  const counts={};
+  MEMBERS.forEach(n=>{counts[n]={t:0,l:0,s:0}});
+  camps.forEach(c=>c.members.forEach(m=>{if(counts[m.name]){counts[m.name].t++;if(m.role==='หัวหน้าฐาน')counts[m.name].l++;else counts[m.name].s++;}}));
+  MEMBERS.slice().sort((a,b)=>counts[b].t-counts[a].t).forEach(n=>sum.push([n,counts[n].t,counts[n].l,counts[n].s]));
+  const ws2=XLSX.utils.aoa_to_sheet(sum);
+  ws2['!cols']=[{wch:16},{wch:16},{wch:16},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,ws2,'สรุปนวัตกร');
+  XLSX.writeFile(wb,'GodlightInnovation_Camps.xlsx');
+  showToast('✅ Export สำเร็จ!');
+}
+
+function showToast(msg,bg='#27500A'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.background=bg;t.style.display='block';
+  setTimeout(()=>t.style.display='none',2500);
+}
+
+buildGrid();
+</script>
+</body>
+</html>
